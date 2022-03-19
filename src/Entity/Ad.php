@@ -9,10 +9,10 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=AdsRepository::class)
- * @ORM\HasLifeCycleCallbacks
+ * @ORM\Entity(repositoryClass=AdRepository::class)
+ * @ORM\HasLifecycleCallbacks()
  */
-class Ads
+class Ad
 {
     /**
      * @ORM\Id
@@ -32,7 +32,7 @@ class Ads
     private $slug;
 
     /**
-     * @ORM\Columocur\Slugify\Slugify;n(type="float")
+     * @ORM\Column(type="float")
      */
     private $price;
 
@@ -55,17 +55,27 @@ class Ads
      * @ORM\Column(type="integer")
      */
     private $rooms;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Image::class, mappedBy="ad", orphanRemoval=true)
+     */
+    private $images;
+
+    public function __construct()
+    {
+        $this->images = new ArrayCollection();
+    }
     /**
      * Permet d'intialiser le slug !
-     * @ORM\prePersist
-     * @ORM\preUpdate
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
      * @return void 
      */
 
     public function intializeSlug(){
         if (empty($this->slug)){
             $slugify =  new Slugify();
-            $this->slug =$slugify->slugify($this->title);
+            $this->slug = $slugify->slugify($this->title);
 
            }
     }
@@ -138,7 +148,6 @@ class Ads
     public function getCoverImage(): ?string
     {
         return $this->coverImage;
-        
     }
 
     public function setCoverImage(string $coverImage): self
@@ -156,6 +165,36 @@ class Ads
     public function setRooms(int $rooms): self
     {
         $this->rooms = $rooms;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Image>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(Image $image): self
+    {
+        if (!$this->images->contains($image)) {
+            $this->images[] = $image;
+            $image->setAd($this);
+        }
+
+        return $this;
+    }
+
+    public function removeImage(Image $image): self
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getAd() === $this) {
+                $image->setAd(null);
+            }
+        }
 
         return $this;
     }
