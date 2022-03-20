@@ -31,12 +31,12 @@ class AdController extends AbstractController
      * 
      * @return Response
      */
-    public function show($slug,AdRepository $repo){
+    public function show(Ad $ad){
         //je recupere l'annonce qui corespond au slug!
-        $ad =$repo->findBySlug($slug);
+       // $ad =$repo->findBySlug($slug);
 
         return $this->render('ad/show.html.twig',[
-            'ad'=>$ad
+            'ad' => $ad
         ]);
 
     }
